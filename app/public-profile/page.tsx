@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import {
   Container,
@@ -61,13 +63,13 @@ export default function ProfilePage() {
     try {
       setLoading(true);
       setError('');
-      
+
       // Implement password change API call
       await api.post('/api/users/change-password', {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
       });
-      
+
       setSuccess('Password updated successfully');
       toast.showSuccess('Password updated successfully');
       setPasswordData({
@@ -126,7 +128,7 @@ export default function ProfilePage() {
       setLoading(true);
       // Implement 2FA verification API call
       await api.post('/api/users/verify-2fa', { code });
-      
+
       await update({
         ...session,
         user: {
@@ -150,7 +152,7 @@ export default function ProfilePage() {
       setLoading(true);
       // Implement 2FA code resend API call
       await api.post('/api/users/resend-2fa');
-      
+
       toast.showSuccess('Verification code resent to your email');
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Failed to resend verification code';

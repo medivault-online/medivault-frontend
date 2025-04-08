@@ -1,14 +1,16 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Box, 
-  Typography, 
-  Button, 
-  Card, 
-  CardContent, 
-  Divider, 
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Divider,
   TextField,
   Alert,
   Grid,
@@ -37,8 +39,8 @@ export default function AuthTestPage() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerRole, setRegisterRole] = useState('PATIENT');
-  const [message, setMessage] = useState<{text: string, type: 'success' | 'error' | 'info'} | null>(null);
-  const [testResults, setTestResults] = useState<{name: string, result: 'pass' | 'fail', message: string}[]>([]);
+  const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
+  const [testResults, setTestResults] = useState<{ name: string, result: 'pass' | 'fail', message: string }[]>([]);
 
   // Toggle debug mode
   const handleToggleDebug = () => {
@@ -71,7 +73,7 @@ export default function AuthTestPage() {
     try {
       setMessage(null);
       const success = await login(loginEmail, loginPassword);
-      
+
       if (success) {
         setTestResults([
           ...testResults,
@@ -125,7 +127,7 @@ export default function AuthTestPage() {
         password: registerPassword,
         role: registerRole as any
       });
-      
+
       if (success) {
         setTestResults([
           ...testResults,
@@ -211,21 +213,21 @@ export default function AuthTestPage() {
       <Typography variant="h4" component="h1" gutterBottom>
         Authentication Test Page
       </Typography>
-      
+
       <Typography color="text.secondary" paragraph>
         Use this page to test authentication flows and verify functionality.
       </Typography>
-      
+
       {message && (
-        <Alert 
-          severity={message.type} 
+        <Alert
+          severity={message.type}
           sx={{ mb: 3 }}
           onClose={() => setMessage(null)}
         >
           {message.text}
         </Alert>
       )}
-      
+
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Card sx={{ mb: 3 }}>
@@ -233,11 +235,11 @@ export default function AuthTestPage() {
               <Typography variant="h6" gutterBottom>
                 Auth Status
               </Typography>
-              
+
               <Typography variant="body1" sx={{ mb: 2 }}>
                 Current Status: <strong>{isAuthenticated ? 'Authenticated' : 'Not Authenticated'}</strong>
               </Typography>
-              
+
               {user && (
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1">User Info:</Typography>
@@ -246,13 +248,13 @@ export default function AuthTestPage() {
                   <Typography>Role: {user.role}</Typography>
                 </Box>
               )}
-              
+
               <Box sx={{ mt: 2 }}>
                 <FormControlLabel
                   control={<Switch checked={debugMode} onChange={handleToggleDebug} />}
                   label="Debug Mode"
                 />
-                
+
                 <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
                   <Button variant="outlined" onClick={handleCheckAuth}>
                     Check Auth State
@@ -261,7 +263,7 @@ export default function AuthTestPage() {
                     Clear Auth Storage
                   </Button>
                 </Box>
-                
+
                 {authState && (
                   <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 1 }}>
                     <Typography variant="subtitle2">Auth State:</Typography>
@@ -273,13 +275,13 @@ export default function AuthTestPage() {
               </Box>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Test Results
               </Typography>
-              
+
               {testResults.length === 0 ? (
                 <Typography color="text.secondary">No tests run yet</Typography>
               ) : (
@@ -294,11 +296,11 @@ export default function AuthTestPage() {
                   ))}
                 </List>
               )}
-              
-              <Button 
-                variant="outlined" 
-                color="warning" 
-                fullWidth 
+
+              <Button
+                variant="outlined"
+                color="warning"
+                fullWidth
                 sx={{ mt: 2 }}
                 onClick={() => setTestResults([])}
               >
@@ -307,14 +309,14 @@ export default function AuthTestPage() {
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           <Card sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Login Test
               </Typography>
-              
+
               <TextField
                 label="Email"
                 fullWidth
@@ -322,7 +324,7 @@ export default function AuthTestPage() {
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
               />
-              
+
               <TextField
                 label="Password"
                 type="password"
@@ -331,10 +333,10 @@ export default function AuthTestPage() {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
               />
-              
-              <Button 
-                variant="contained" 
-                fullWidth 
+
+              <Button
+                variant="contained"
+                fullWidth
                 sx={{ mt: 2 }}
                 onClick={handleLoginTest}
               >
@@ -342,13 +344,13 @@ export default function AuthTestPage() {
               </Button>
             </CardContent>
           </Card>
-          
+
           <Card sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Register Test
               </Typography>
-              
+
               <TextField
                 label="Name"
                 fullWidth
@@ -356,7 +358,7 @@ export default function AuthTestPage() {
                 value={registerName}
                 onChange={(e) => setRegisterName(e.target.value)}
               />
-              
+
               <TextField
                 label="Email"
                 fullWidth
@@ -364,7 +366,7 @@ export default function AuthTestPage() {
                 value={registerEmail}
                 onChange={(e) => setRegisterEmail(e.target.value)}
               />
-              
+
               <TextField
                 label="Password"
                 type="password"
@@ -373,7 +375,7 @@ export default function AuthTestPage() {
                 value={registerPassword}
                 onChange={(e) => setRegisterPassword(e.target.value)}
               />
-              
+
               <TextField
                 label="Role"
                 select
@@ -389,10 +391,10 @@ export default function AuthTestPage() {
                 <option value="PROVIDER">Provider</option>
                 <option value="ADMIN">Admin</option>
               </TextField>
-              
-              <Button 
-                variant="contained" 
-                fullWidth 
+
+              <Button
+                variant="contained"
+                fullWidth
                 sx={{ mt: 2 }}
                 onClick={handleRegisterTest}
               >
@@ -400,23 +402,23 @@ export default function AuthTestPage() {
               </Button>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Logout Test
               </Typography>
-              
-              <Button 
-                variant="contained" 
-                color="error" 
+
+              <Button
+                variant="contained"
+                color="error"
                 fullWidth
                 onClick={handleLogoutTest}
                 disabled={!isAuthenticated}
               >
                 Test Logout
               </Button>
-              
+
               {!isAuthenticated && (
                 <Typography color="text.secondary" sx={{ mt: 2 }}>
                   You need to be logged in to test logout
@@ -426,12 +428,12 @@ export default function AuthTestPage() {
           </Card>
         </Grid>
       </Grid>
-      
+
       <Box sx={{ mt: 4, pt: 2, borderTop: 1, borderColor: 'divider' }}>
         <Typography variant="h6" gutterBottom>
           Quick Links
         </Typography>
-        
+
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button component={Link} href="/auth/login" variant="outlined">
             Login

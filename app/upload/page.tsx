@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { Container, Typography, Paper, Box } from '@mui/material';
 import { ImageUpload } from '@/components/images/ImageUpload';
