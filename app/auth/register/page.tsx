@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -144,7 +146,7 @@ export default function RegisterPage() {
       console.log('Starting sign up process...');
       console.log('Selected role:', role);
       console.log('Selected specialty:', specialty);
-      
+
       const signUpData = {
         emailAddress: email,
         password,
@@ -155,11 +157,11 @@ export default function RegisterPage() {
           ...(role === Role.PROVIDER && { specialty })
         }
       };
-      
+
       console.log('Sign up data:', signUpData);
-      
+
       const result = await signUp.create(signUpData);
-      
+
       console.log('Sign up result:', result);
       console.log('User ID:', result.createdUserId);
       console.log('Status:', result.status);
@@ -171,17 +173,17 @@ export default function RegisterPage() {
         if (result.createdUserId) {
           try {
             console.log('Registration complete, redirecting to verification');
-            
+
             // The webhook will handle creating the user in our database
             // Clear sensitive data from localStorage
             localStorage.removeItem('lastRegistrationAttempt');
-            
+
             // Store the role in localStorage for later retrieval after verification
             localStorage.setItem('pendingUserRole', role);
             if (role === Role.PROVIDER && specialty) {
               localStorage.setItem('pendingUserSpecialty', specialty);
             }
-            
+
             // Redirect to verification page
             router.push('/auth/verify-email');
           } catch (error) {
@@ -197,15 +199,15 @@ export default function RegisterPage() {
         await signUp.prepareEmailAddressVerification({
           strategy: "email_code"
         });
-        
+
         console.log('Registration requires verification, redirecting');
-        
+
         // Store the role in localStorage for later retrieval after verification
         localStorage.setItem('pendingUserRole', role);
         if (role === Role.PROVIDER && specialty) {
           localStorage.setItem('pendingUserSpecialty', specialty);
         }
-        
+
         // Redirect to verification page
         router.push('/auth/verify-email');
       } else {
@@ -348,24 +350,24 @@ export default function RegisterPage() {
 
             {/* Password Strength Indicator */}
             <Box sx={{ mt: 1, mb: 2 }}>
-              <LinearProgress 
-                variant="determinate" 
-                value={passwordStrength} 
-                sx={{ 
-                  height: 8, 
+              <LinearProgress
+                variant="determinate"
+                value={passwordStrength}
+                sx={{
+                  height: 8,
                   borderRadius: 4,
                   backgroundColor: '#e0e0e0',
                   '& .MuiLinearProgress-bar': {
-                    backgroundColor: passwordStrength === 100 ? '#4caf50' : 
-                                   passwordStrength >= 60 ? '#2196f3' : 
-                                   passwordStrength >= 40 ? '#ff9800' : '#f44336',
+                    backgroundColor: passwordStrength === 100 ? '#4caf50' :
+                      passwordStrength >= 60 ? '#2196f3' :
+                        passwordStrength >= 40 ? '#ff9800' : '#f44336',
                   }
-                }} 
+                }}
               />
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                Password Strength: {passwordStrength === 100 ? 'Strong' : 
-                                  passwordStrength >= 60 ? 'Good' : 
-                                  passwordStrength >= 40 ? 'Fair' : 'Weak'}
+                Password Strength: {passwordStrength === 100 ? 'Strong' :
+                  passwordStrength >= 60 ? 'Good' :
+                    passwordStrength >= 40 ? 'Fair' : 'Weak'}
               </Typography>
             </Box>
 
@@ -380,7 +382,7 @@ export default function RegisterPage() {
                       <ErrorIcon color="error" />
                     )}
                   </ListItemIcon>
-                  <ListItemText 
+                  <ListItemText
                     primary={criterion.label}
                     sx={{
                       color: criterion.met ? 'success.main' : 'text.secondary',

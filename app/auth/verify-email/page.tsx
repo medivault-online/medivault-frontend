@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -35,14 +37,14 @@ export default function VerifyEmailPage() {
   const [isResending, setIsResending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   const { signUp } = useSignUp();
   const { signOut } = useClerk();
-  
+
   // If user is already authenticated and email is verified, redirect to dashboard
   useEffect(() => {
     if (isLoaded && isSignedIn && user?.primaryEmailAddress?.verification?.status === 'verified') {
@@ -63,18 +65,18 @@ export default function VerifyEmailPage() {
       }
     }
   }, [isLoaded, isSignedIn, user, router]);
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!code) {
       setError('Verification code is required');
       return;
     }
-    
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       if (!signUp) {
         throw new Error('Sign up session not found. Please try registering again.');
@@ -98,13 +100,13 @@ export default function VerifyEmailPage() {
       if (result.status === "complete") {
         console.log('Verification complete, showing success message');
         setSuccess(true);
-        
+
         try {
           // Synchronize the user with our database
           const pendingRole = localStorage.getItem('pendingUserRole');
           const pendingSpecialty = localStorage.getItem('pendingUserSpecialty');
           const userId = result.createdUserId;
-          
+
           if (userId) {
             console.log('Attempting to sync user after verification:', userId);
             try {
@@ -133,10 +135,10 @@ export default function VerifyEmailPage() {
             console.warn('Non-critical error clearing session:', signOutError);
             // Continue regardless - this is just to clean up
           }
-          
+
           // Clear clerk browser storage to ensure a clean state
           localStorage.removeItem('clerk-db-auth');
-          
+
           // When a user verifies their email, they don't have a full account yet
           // We should redirect them to login page to complete the flow
           setTimeout(() => {
@@ -145,13 +147,13 @@ export default function VerifyEmailPage() {
             localStorage.setItem('emailVerificationCompleted', 'true');
             localStorage.setItem('verificationTimestamp', Date.now().toString());
             localStorage.setItem('verificationStatus', 'complete');
-            
+
             // Check if we have a pending role - keep it for login
             const pendingRole = localStorage.getItem('pendingUserRole');
             if (pendingRole) {
               console.log('Verification complete with pending role:', pendingRole);
             }
-            
+
             // Redirect to login with special parameter to indicate verification is complete
             // Force page reload to clear any lingering state
             window.location.href = `${routes.root.login}?message=verification_complete&reset=true`;
@@ -167,7 +169,7 @@ export default function VerifyEmailPage() {
         // Handle the case where verification is successful but more steps are needed
         console.log('Verification successful but additional steps required');
         setSuccess(true);
-        
+
         // Redirect to login page with a success message
         setTimeout(() => {
           console.log('Redirecting to login page for additional requirements');
@@ -175,7 +177,7 @@ export default function VerifyEmailPage() {
           localStorage.setItem('emailVerificationCompleted', 'true');
           localStorage.setItem('verificationTimestamp', Date.now().toString());
           localStorage.setItem('verificationStatus', 'missing_requirements');
-          
+
           router.push(`${routes.root.login as Route}?message=verification_complete`);
         }, 2000);
       } else {
@@ -183,7 +185,7 @@ export default function VerifyEmailPage() {
       }
     } catch (err: any) {
       console.error('Email verification error:', err);
-      
+
       // Handle common verification errors
       if (err.message.includes('code') || err.message.includes('token')) {
         setError('Invalid verification code. Please try again.');
@@ -198,24 +200,24 @@ export default function VerifyEmailPage() {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleResendCode = async () => {
     if (!signUp) {
       setError('Sign up session not found. Please try registering again.');
       return;
     }
-    
+
     setIsResending(true);
     setError(null);
     setResendSuccess(false);
-    
+
     try {
       await signUp.prepareEmailAddressVerification({
         strategy: "email_code"
       });
-      
+
       setResendSuccess(true);
-      
+
       // Clear the resend success message after 5 seconds
       setTimeout(() => {
         setResendSuccess(false);
@@ -227,41 +229,41 @@ export default function VerifyEmailPage() {
       setIsResending(false);
     }
   };
-  
+
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h4" align="center" gutterBottom fontWeight="bold">
           Medical Image Sharing
         </Typography>
-        
+
         <Typography variant="h5" align="center" gutterBottom sx={{ mb: 4 }}>
           Verify Your Email
         </Typography>
-        
+
         {(error) && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
         )}
-        
+
         {success && (
           <Alert severity="success" sx={{ mb: 3 }}>
             Your email has been successfully verified! Redirecting you to sign in...
           </Alert>
         )}
-        
+
         {resendSuccess && (
           <Alert severity="success" sx={{ mb: 3 }}>
             A new verification code has been sent to your email address.
           </Alert>
         )}
-        
+
         <Box component="form" onSubmit={handleSubmit}>
           <Typography variant="body1" paragraph>
             Please enter the verification code that was sent to your email address.
           </Typography>
-          
+
           <TextField
             fullWidth
             label="Verification Code"
@@ -278,7 +280,7 @@ export default function VerifyEmailPage() {
             }}
             sx={{ mb: 3 }}
           />
-          
+
           <Button
             fullWidth
             type="submit"
@@ -289,12 +291,12 @@ export default function VerifyEmailPage() {
           >
             {isSubmitting ? 'Verifying...' : 'Verify Email'}
           </Button>
-          
+
           <Box sx={{ textAlign: 'center', mt: 2 }}>
             <Typography variant="body2" paragraph>
               Didn't receive a verification code?
             </Typography>
-            
+
             <Button
               variant="outlined"
               onClick={handleResendCode}
@@ -304,11 +306,11 @@ export default function VerifyEmailPage() {
             >
               {isResending ? 'Sending...' : 'Resend Code'}
             </Button>
-            
+
             <Box sx={{ mt: 2 }}>
               <Typography variant="body1" sx={{ mt: 2 }}>
                 Already verified?{' '}
-                <MuiLink 
+                <MuiLink
                   component={Link}
                   href={routes.root.login as Route}
                   underline="hover"
@@ -316,9 +318,9 @@ export default function VerifyEmailPage() {
                   Sign In
                 </MuiLink>
               </Typography>
-              
+
               <Typography variant="body2" sx={{ mt: 1 }}>
-                <MuiLink 
+                <MuiLink
                   component={Link}
                   href="/auth/register"
                   underline="hover"

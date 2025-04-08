@@ -1,10 +1,12 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
+import {
+  Box,
+  Typography,
+  Paper,
   Container,
   Card,
   CardContent,
@@ -13,7 +15,7 @@ import {
   Button,
   Alert
 } from '@mui/material';
-import { 
+import {
   UserProfile,
   useUser,
   useAuth
@@ -25,12 +27,12 @@ export default function MFAPage() {
   const { user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
-  
+
   // Return to profile
   const handleBackToProfile = () => {
     router.push('/profile');
   };
-  
+
   if (!isLoaded) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
@@ -44,8 +46,8 @@ export default function MFAPage() {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ mb: 3, display: 'flex', alignItems: 'center' }}>
-        <Button 
-          startIcon={<ArrowBack />} 
+        <Button
+          startIcon={<ArrowBack />}
           onClick={handleBackToProfile}
           sx={{ mr: 2 }}
         >
@@ -56,7 +58,7 @@ export default function MFAPage() {
           Multi-Factor Authentication
         </Typography>
       </Box>
-      
+
       <Paper sx={{ p: 3, mb: 4 }}>
         <Typography variant="h6" gutterBottom>
           Enhance Your Account Security
@@ -68,7 +70,7 @@ export default function MFAPage() {
           We recommend setting up at least two different authentication methods.
         </Alert>
       </Paper>
-      
+
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Card>
@@ -80,7 +82,7 @@ export default function MFAPage() {
                 Manage your multi-factor authentication settings and security preferences.
               </Typography>
               <Divider sx={{ my: 2 }} />
-              <UserProfile 
+              <UserProfile
                 path="/profile/mfa"
                 routing="path"
                 appearance={{

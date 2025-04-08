@@ -1,12 +1,14 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Paper, 
-  Button, 
+import {
+  Box,
+  Container,
+  Typography,
+  Paper,
+  Button,
   TextField,
   List,
   ListItem,
@@ -24,27 +26,27 @@ export default function DebugPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [debugResult, setDebugResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Get auth data from Clerk
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const { user } = useUser();
-  
+
   const addLog = (message: string) => {
     setLogs(prev => [...prev, `${new Date().toISOString().split('T')[1].split('.')[0]} - ${message}`]);
   };
-  
+
   const testAuth = () => {
     try {
       addLog(`Testing Clerk auth...`);
       addLog(`Auth loaded: ${isLoaded}`);
       addLog(`User signed in: ${isSignedIn}`);
-      
+
       if (user) {
         addLog(`User email: ${user.primaryEmailAddress?.emailAddress}`);
         addLog(`User name: ${user.fullName}`);
         addLog(`User ID: ${user.id}`);
       }
-      
+
       setDebugResult({
         isLoaded,
         isSignedIn,
@@ -61,16 +63,16 @@ export default function DebugPage() {
       setError(error.message);
     }
   };
-  
+
   const testSignOut = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       addLog(`Testing sign-out...`);
-      
+
       await signOut();
-      
+
       addLog(`Sign-out successful!`);
       setDebugResult({ success: true });
     } catch (error: any) {
@@ -81,17 +83,17 @@ export default function DebugPage() {
       setIsLoading(false);
     }
   };
-  
+
   const testAPIRoute = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       addLog(`Testing API auth route...`);
-      
+
       const response = await fetch('/api/auth/me');
       const data = await response.json();
-      
+
       addLog(`API call successful!`);
       setDebugResult(data);
     } catch (error: any) {
@@ -102,7 +104,7 @@ export default function DebugPage() {
       setIsLoading(false);
     }
   };
-  
+
   // Log initial auth information on component mount
   useEffect(() => {
     addLog(`Initial auth loaded: ${isLoaded}`);
@@ -110,23 +112,23 @@ export default function DebugPage() {
       addLog(`Logged in as: ${user.primaryEmailAddress?.emailAddress}`);
     }
   }, [isLoaded, isSignedIn, user]);
-  
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" gutterBottom>
         Clerk Authentication Debug Page
       </Typography>
-      
+
       <Typography variant="body1" paragraph>
         This page helps diagnose issues with Clerk authentication and user session management.
       </Typography>
-      
+
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
         </Alert>
       )}
-      
+
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         <Card sx={{ width: '100%', mb: 3 }}>
           <CardContent>
@@ -142,31 +144,31 @@ export default function DebugPage() {
             )}
           </CardContent>
         </Card>
-        
+
         <Paper sx={{ p: 3, width: '100%', mb: 3 }}>
           <Typography variant="h6" gutterBottom>
             1. Test Authentication
           </Typography>
-          
+
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               onClick={testAuth}
               disabled={isLoading}
             >
               {isLoading ? <CircularProgress size={24} /> : 'Test Auth'}
             </Button>
-            
-            <Button 
-              variant="outlined" 
+
+            <Button
+              variant="outlined"
               onClick={testSignOut}
               disabled={isLoading}
             >
               Test Sign Out
             </Button>
-            
-            <Button 
-              variant="outlined" 
+
+            <Button
+              variant="outlined"
               onClick={testAPIRoute}
               disabled={isLoading}
             >
@@ -174,29 +176,29 @@ export default function DebugPage() {
             </Button>
           </Box>
         </Paper>
-        
+
         <Paper sx={{ p: 3, width: '100%', mb: 3 }}>
           <Typography variant="h6" gutterBottom>Debug Results</Typography>
-          <Box sx={{ 
-            p: 2, 
-            bgcolor: 'background.paper', 
+          <Box sx={{
+            p: 2,
+            bgcolor: 'background.paper',
             borderRadius: 1,
             maxHeight: '200px',
-            overflow: 'auto' 
+            overflow: 'auto'
           }}>
             <Typography component="pre" variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
               {debugResult ? JSON.stringify(debugResult, null, 2) : 'No results yet'}
             </Typography>
           </Box>
         </Paper>
-        
+
         <Paper sx={{ p: 3, width: '100%' }}>
           <Typography variant="h6" gutterBottom>Debug Logs</Typography>
-          <List sx={{ 
-            bgcolor: 'background.paper', 
+          <List sx={{
+            bgcolor: 'background.paper',
             borderRadius: 1,
             maxHeight: '300px',
-            overflow: 'auto' 
+            overflow: 'auto'
           }}>
             {logs.length === 0 ? (
               <ListItem>
@@ -206,13 +208,13 @@ export default function DebugPage() {
               logs.map((log, index) => (
                 <React.Fragment key={index}>
                   <ListItem>
-                    <ListItemText 
-                      primary={log} 
-                      primaryTypographyProps={{ 
+                    <ListItemText
+                      primary={log}
+                      primaryTypographyProps={{
                         component: 'div',
                         fontFamily: 'monospace',
                         fontSize: '0.875rem'
-                      }} 
+                      }}
                     />
                   </ListItem>
                   {index < logs.length - 1 && <Divider />}

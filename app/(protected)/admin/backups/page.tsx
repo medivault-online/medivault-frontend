@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -39,7 +41,7 @@ import {
   DialogActions,
   DialogContentText,
 } from '@mui/material';
-import { 
+import {
   Refresh as RefreshIcon,
   Backup as BackupIcon,
   Restore as RestoreIcon,
@@ -105,12 +107,12 @@ export default function BackupAndRecoveryPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [currentTab, setCurrentTab] = useState<TabType>(TabType.BACKUPS);
-  
+
   // Backup state
   const [backups, setBackups] = useState<Backup[]>([]);
   const [newBackupInProgress, setNewBackupInProgress] = useState(false);
   const [selectedBackup, setSelectedBackup] = useState<Backup | null>(null);
-  
+
   // Backup schedule state
   const [backupSchedule, setBackupSchedule] = useState<BackupSchedule>({
     enabled: false,
@@ -122,7 +124,7 @@ export default function BackupAndRecoveryPage() {
     dayOfMonth: 1,
   });
   const [scheduleSaving, setScheduleSaving] = useState(false);
-  
+
   // System maintenance state
   const [maintenanceStatus, setMaintenanceStatus] = useState<SystemMaintenanceStatus>({
     enabled: false,
@@ -134,12 +136,12 @@ export default function BackupAndRecoveryPage() {
   const [scheduledMaintenanceStart, setScheduledMaintenanceStart] = useState<Date | null>(null);
   const [scheduledMaintenanceEnd, setScheduledMaintenanceEnd] = useState<Date | null>(null);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
-  
+
   // Dialog states
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showMaintenanceDialog, setShowMaintenanceDialog] = useState(false);
-  
+
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -160,15 +162,15 @@ export default function BackupAndRecoveryPage() {
 
     checkRole();
   }, [isLoaded, userId, router]);
-  
+
   // Fetch backup data
   const fetchBackups = async () => {
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await adminClient.getBackups();
-      
+
       if (response.status === 'success') {
         setBackups(response.data);
       } else {
@@ -181,15 +183,15 @@ export default function BackupAndRecoveryPage() {
       setLoading(false);
     }
   };
-  
+
   // Fetch backup schedule
   const fetchBackupSchedule = async () => {
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await adminClient.getBackupSchedule();
-      
+
       if (response.status === 'success') {
         setBackupSchedule(response.data);
       } else {
@@ -202,15 +204,15 @@ export default function BackupAndRecoveryPage() {
       setLoading(false);
     }
   };
-  
+
   // Fetch maintenance status
   const fetchMaintenanceStatus = async () => {
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await adminClient.getMaintenanceStatus();
-      
+
       if (response.status === 'success') {
         setMaintenanceStatus(response.data);
         if (response.data.scheduledStart) {
@@ -230,15 +232,15 @@ export default function BackupAndRecoveryPage() {
       setLoading(false);
     }
   };
-  
+
   // Create new backup
   const handleCreateBackup = async () => {
     setNewBackupInProgress(true);
     setError('');
-    
+
     try {
       const response = await adminClient.createBackup();
-      
+
       if (response.status === 'success') {
         setSuccess('Backup creation initiated successfully');
         fetchBackups(); // Refresh the list
@@ -252,17 +254,17 @@ export default function BackupAndRecoveryPage() {
       setNewBackupInProgress(false);
     }
   };
-  
+
   // Restore backup
   const handleRestoreBackup = async () => {
     if (!selectedBackup) return;
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await adminClient.restoreBackup(selectedBackup.id);
-      
+
       if (response.status === 'success') {
         setSuccess('Backup restoration initiated successfully');
         setShowRestoreDialog(false);
@@ -276,17 +278,17 @@ export default function BackupAndRecoveryPage() {
       setLoading(false);
     }
   };
-  
+
   // Delete backup
   const handleDeleteBackup = async () => {
     if (!selectedBackup) return;
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await adminClient.deleteBackup(selectedBackup.id);
-      
+
       if (response.status === 'success') {
         setSuccess('Backup deleted successfully');
         setShowDeleteDialog(false);
@@ -301,15 +303,15 @@ export default function BackupAndRecoveryPage() {
       setLoading(false);
     }
   };
-  
+
   // Download backup
   const handleDownloadBackup = async (backup: Backup) => {
     setLoading(true);
     setError('');
-    
+
     try {
       const response = await adminClient.downloadBackup(backup.id);
-      
+
       if (response.status === 'success') {
         // Create a blob from the response data
         const blob = new Blob([response.data], { type: 'application/octet-stream' });
@@ -331,15 +333,15 @@ export default function BackupAndRecoveryPage() {
       setLoading(false);
     }
   };
-  
+
   // Save backup schedule
   const handleSaveSchedule = async () => {
     setScheduleSaving(true);
     setError('');
-    
+
     try {
       const response = await adminClient.updateBackupSchedule(backupSchedule);
-      
+
       if (response.status === 'success') {
         setSuccess('Backup schedule updated successfully');
       } else {
@@ -352,18 +354,18 @@ export default function BackupAndRecoveryPage() {
       setScheduleSaving(false);
     }
   };
-  
+
   // Toggle maintenance mode
   const handleToggleMaintenance = async (enabled: boolean) => {
     setMaintenanceSaving(true);
     setError('');
-    
+
     try {
       const response = await adminClient.updateMaintenanceStatus({
         ...maintenanceStatus,
         enabled,
       });
-      
+
       if (response.status === 'success') {
         setSuccess(`Maintenance mode ${enabled ? 'enabled' : 'disabled'} successfully`);
         setMaintenanceStatus(response.data);
@@ -377,22 +379,22 @@ export default function BackupAndRecoveryPage() {
       setMaintenanceSaving(false);
     }
   };
-  
+
   // Save scheduled maintenance
   const handleSaveScheduledMaintenance = async () => {
     if (!scheduledMaintenanceStart || !scheduledMaintenanceEnd) {
       setError('Please select both start and end times');
       return;
     }
-    
+
     if (isAfter(scheduledMaintenanceStart, scheduledMaintenanceEnd)) {
       setError('End time must be after start time');
       return;
     }
-    
+
     setMaintenanceSaving(true);
     setError('');
-    
+
     try {
       const response = await adminClient.updateMaintenanceStatus({
         ...maintenanceStatus,
@@ -400,7 +402,7 @@ export default function BackupAndRecoveryPage() {
         scheduledEnd: scheduledMaintenanceEnd.toISOString(),
         message: maintenanceMessage,
       });
-      
+
       if (response.status === 'success') {
         setSuccess('Scheduled maintenance updated successfully');
         setShowMaintenanceDialog(false);
@@ -415,23 +417,23 @@ export default function BackupAndRecoveryPage() {
       setMaintenanceSaving(false);
     }
   };
-  
+
   // Format file size
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
-  
+
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
-  
+
   // Update backup schedule
   const handleScheduleChange = (field: keyof BackupSchedule, value: any) => {
     setBackupSchedule(prev => ({
@@ -439,14 +441,14 @@ export default function BackupAndRecoveryPage() {
       [field]: value,
     }));
   };
-  
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box sx={{ width: '100%' }}>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-            <Tabs 
-              value={currentTab} 
+            <Tabs
+              value={currentTab}
               onChange={handleTabChange}
               aria-label="backup and maintenance tabs"
             >
@@ -455,22 +457,22 @@ export default function BackupAndRecoveryPage() {
               <Tab label="System Maintenance" />
             </Tabs>
           </Box>
-          
+
           {error && (
             <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
               {error}
             </Alert>
           )}
-          
+
           {success && (
             <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess('')}>
               {success}
             </Alert>
           )}
-          
+
           {/* Loading indicator */}
           {loading && <LinearProgress sx={{ mb: 2 }} />}
-          
+
           {/* Backups Tab */}
           {currentTab === TabType.BACKUPS && (
             <>
@@ -505,7 +507,7 @@ export default function BackupAndRecoveryPage() {
                   </Button>
                 </Box>
               </Box>
-              
+
               <TableContainer component={Paper} sx={{ mb: 3 }}>
                 <Table>
                   <TableHead>
@@ -550,8 +552,8 @@ export default function BackupAndRecoveryPage() {
                                 backup.status === 'completed'
                                   ? 'success'
                                   : backup.status === 'failed'
-                                  ? 'error'
-                                  : 'warning'
+                                    ? 'error'
+                                    : 'warning'
                               }
                               size="small"
                             />
@@ -601,7 +603,7 @@ export default function BackupAndRecoveryPage() {
               </TableContainer>
             </>
           )}
-          
+
           {/* Backup Scheduling Tab */}
           {currentTab === TabType.SCHEDULING && (
             <>
@@ -618,7 +620,7 @@ export default function BackupAndRecoveryPage() {
                   Refresh
                 </Button>
               </Box>
-              
+
               <Paper sx={{ p: 3, mb: 3 }}>
                 <FormGroup>
                   <FormControlLabel
@@ -631,9 +633,9 @@ export default function BackupAndRecoveryPage() {
                     label="Enable automatic backups"
                   />
                 </FormGroup>
-                
+
                 <Divider sx={{ my: 3 }} />
-                
+
                 <Grid container spacing={3} sx={{ mb: 3 }}>
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth disabled={!backupSchedule.enabled}>
@@ -649,7 +651,7 @@ export default function BackupAndRecoveryPage() {
                       </Select>
                     </FormControl>
                   </Grid>
-                  
+
                   <Grid item xs={12} md={4}>
                     <TextField
                       label="Backup Time (24h)"
@@ -662,7 +664,7 @@ export default function BackupAndRecoveryPage() {
                       disabled={!backupSchedule.enabled}
                     />
                   </Grid>
-                  
+
                   {backupSchedule.frequency === 'weekly' && (
                     <Grid item xs={12} md={4}>
                       <FormControl fullWidth disabled={!backupSchedule.enabled}>
@@ -683,7 +685,7 @@ export default function BackupAndRecoveryPage() {
                       </FormControl>
                     </Grid>
                   )}
-                  
+
                   {backupSchedule.frequency === 'monthly' && (
                     <Grid item xs={12} md={4}>
                       <TextField
@@ -704,7 +706,7 @@ export default function BackupAndRecoveryPage() {
                     </Grid>
                   )}
                 </Grid>
-                
+
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -724,7 +726,7 @@ export default function BackupAndRecoveryPage() {
                       disabled={!backupSchedule.enabled}
                     />
                   </Grid>
-                  
+
                   <Grid item xs={12} md={6}>
                     <Paper sx={{ p: 2, bgcolor: 'background.default', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -732,14 +734,14 @@ export default function BackupAndRecoveryPage() {
                         <Typography variant="subtitle2">Next Scheduled Backup</Typography>
                       </Box>
                       <Typography>
-                        {backupSchedule.enabled 
+                        {backupSchedule.enabled
                           ? format(parseISO(backupSchedule.nextScheduled), 'PPpp')
                           : 'Automatic backups are disabled'}
                       </Typography>
                     </Paper>
                   </Grid>
                 </Grid>
-                
+
                 <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                   <Button
                     variant="contained"
@@ -753,7 +755,7 @@ export default function BackupAndRecoveryPage() {
               </Paper>
             </>
           )}
-          
+
           {/* System Maintenance Tab */}
           {currentTab === TabType.MAINTENANCE && (
             <>
@@ -770,13 +772,13 @@ export default function BackupAndRecoveryPage() {
                   Refresh
                 </Button>
               </Box>
-              
+
               <Paper sx={{ p: 3, mb: 3 }}>
                 <Typography variant="h6" gutterBottom>Maintenance Mode</Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
                   When maintenance mode is enabled, only administrators can access the system. All other users will see a maintenance page with a message.
                 </Typography>
-                
+
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <FormGroup>
                     <FormControlLabel
@@ -797,7 +799,7 @@ export default function BackupAndRecoveryPage() {
                       }
                     />
                   </FormGroup>
-                  
+
                   <Button
                     variant="outlined"
                     startIcon={<ScheduleIcon />}
@@ -806,10 +808,10 @@ export default function BackupAndRecoveryPage() {
                     Schedule Maintenance
                   </Button>
                 </Box>
-                
+
                 {maintenanceStatus.scheduledStart && maintenanceStatus.scheduledEnd && (
-                  <Alert 
-                    severity="info" 
+                  <Alert
+                    severity="info"
                     icon={<InfoIcon />}
                     sx={{ mt: 3 }}
                   >
@@ -826,13 +828,13 @@ export default function BackupAndRecoveryPage() {
                   </Alert>
                 )}
               </Paper>
-              
+
               <Paper sx={{ p: 3 }}>
                 <Typography variant="h6" gutterBottom>System Operations</Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
                   Perform system maintenance operations. Use these options with caution as they may affect system availability.
                 </Typography>
-                
+
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={6} md={4}>
                     <Paper
@@ -857,7 +859,7 @@ export default function BackupAndRecoveryPage() {
                       </Button>
                     </Paper>
                   </Grid>
-                  
+
                   <Grid item xs={12} sm={6} md={4}>
                     <Paper
                       sx={{
@@ -881,7 +883,7 @@ export default function BackupAndRecoveryPage() {
                       </Button>
                     </Paper>
                   </Grid>
-                  
+
                   <Grid item xs={12} sm={6} md={4}>
                     <Paper
                       sx={{
@@ -910,7 +912,7 @@ export default function BackupAndRecoveryPage() {
               </Paper>
             </>
           )}
-          
+
           {/* Restore Dialog */}
           <Dialog
             open={showRestoreDialog}
@@ -935,10 +937,10 @@ export default function BackupAndRecoveryPage() {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setShowRestoreDialog(false)}>Cancel</Button>
-              <Button 
-                onClick={handleRestoreBackup} 
-                variant="contained" 
-                color="warning" 
+              <Button
+                onClick={handleRestoreBackup}
+                variant="contained"
+                color="warning"
                 startIcon={<RestoreIcon />}
                 disabled={loading}
               >
@@ -946,7 +948,7 @@ export default function BackupAndRecoveryPage() {
               </Button>
             </DialogActions>
           </Dialog>
-          
+
           {/* Delete Dialog */}
           <Dialog
             open={showDeleteDialog}
@@ -960,10 +962,10 @@ export default function BackupAndRecoveryPage() {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
-              <Button 
-                onClick={handleDeleteBackup} 
-                variant="contained" 
-                color="error" 
+              <Button
+                onClick={handleDeleteBackup}
+                variant="contained"
+                color="error"
                 startIcon={<DeleteIcon />}
                 disabled={loading}
               >
@@ -971,7 +973,7 @@ export default function BackupAndRecoveryPage() {
               </Button>
             </DialogActions>
           </Dialog>
-          
+
           {/* Schedule Maintenance Dialog */}
           <Dialog
             open={showMaintenanceDialog}
@@ -984,7 +986,7 @@ export default function BackupAndRecoveryPage() {
               <DialogContentText sx={{ mb: 2 }}>
                 Schedule a maintenance window during which the system will automatically enter maintenance mode.
               </DialogContentText>
-              
+
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid item xs={12}>
                   <Box sx={{ width: '100%' }}>
@@ -1022,9 +1024,9 @@ export default function BackupAndRecoveryPage() {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setShowMaintenanceDialog(false)}>Cancel</Button>
-              <Button 
-                onClick={handleSaveScheduledMaintenance} 
-                variant="contained" 
+              <Button
+                onClick={handleSaveScheduledMaintenance}
+                variant="contained"
                 disabled={maintenanceSaving || !scheduledMaintenanceStart || !scheduledMaintenanceEnd || !maintenanceMessage}
                 startIcon={maintenanceSaving ? <CircularProgress size={20} /> : <ScheduleIcon />}
               >

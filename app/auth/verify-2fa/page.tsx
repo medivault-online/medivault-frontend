@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -36,19 +38,19 @@ export default function Verify2FAPage() {
       // Check for pending authentication
       const hasPendingAuth = document.cookie.includes('pendingAuth=true');
       const storedEmail = localStorage.getItem('pendingAuthEmail');
-      
-      console.log('2FA Page - Auth state:', { 
-        hasPendingAuth, 
-        storedEmail, 
-        needsMFA, 
+
+      console.log('2FA Page - Auth state:', {
+        hasPendingAuth,
+        storedEmail,
+        needsMFA,
         isLoaded,
         isSignedIn
       });
-      
+
       if (storedEmail) {
         setEmail(storedEmail);
       }
-      
+
       // Set auth state based on conditions
       if (needsMFA) {
         setAuthState('pending');
@@ -82,7 +84,7 @@ export default function Verify2FAPage() {
       console.log('Submitting verification code:', verificationCode);
       const result = await submitMfaCode(verificationCode);
       console.log('Verification result:', result);
-      
+
       if (result.success && result.redirectTo) {
         setAuthState('verified');
         toast.showSuccess('Verification successful');
@@ -102,11 +104,11 @@ export default function Verify2FAPage() {
     try {
       // Clear existing error
       setError(null);
-      
+
       // Clear pending auth state
       document.cookie = 'pendingAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       localStorage.removeItem('pendingAuthEmail');
-      
+
       // Redirect to login page to restart the process
       toast.showInfo('Please sign in again to receive a new code');
       router.push('/auth/login' as Route);
@@ -167,12 +169,12 @@ export default function Verify2FAPage() {
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 3, textAlign: 'center' }}>
-          {email ? 
-            `Please enter the verification code sent to ${email}` : 
+          {email ?
+            `Please enter the verification code sent to ${email}` :
             'Please enter the verification code sent to your email'
           }
         </Typography>
-        
+
         <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
           For additional security, we require a verification code to complete your sign-in process.
         </Typography>
@@ -216,7 +218,7 @@ export default function Verify2FAPage() {
           >
             {isSubmitting ? <CircularProgress size={24} /> : 'Verify Code'}
           </Button>
-          
+
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Link
               component="button"

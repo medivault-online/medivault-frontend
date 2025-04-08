@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -64,7 +66,7 @@ export default function LoginPage() {
           url.searchParams.delete('reset');
           url.searchParams.delete('justRefreshed');
           window.history.replaceState({}, '', url.toString());
-          
+
           // Clear any pending data
           localStorage.removeItem('pendingUserRole');
           localStorage.removeItem('pendingUserSpecialty');
@@ -81,7 +83,7 @@ export default function LoginPage() {
   useEffect(() => {
     const messageParam = searchParams?.get('message');
     const errorParam = searchParams?.get('error');
-    
+
     if (messageParam === 'verification_complete') {
       setShowVerificationSuccess(true);
       // Clean up verification data
@@ -89,7 +91,7 @@ export default function LoginPage() {
       localStorage.removeItem('verificationTimestamp');
       localStorage.removeItem('verificationStatus');
     }
-    
+
     // Handle specific error cases
     if (errorParam === 'no_role_found') {
       setError('Your account does not have a valid role. Please contact support.');
@@ -103,30 +105,30 @@ export default function LoginPage() {
     if (!isLoaded) return;
 
     const handleSignedInState = async () => {
-      console.log('Checking signed in state:', { 
-        isSignedIn, 
-        hasUser: !!clerk.user, 
+      console.log('Checking signed in state:', {
+        isSignedIn,
+        hasUser: !!clerk.user,
         needsMFA,
-        mfaStrategy 
+        mfaStrategy
       });
-      
+
       // Don't redirect if 2FA is required
       if (needsMFA) {
         console.log('2FA required, staying on login page');
         return;
       }
-      
+
       if (isSignedIn && clerk.user) {
         try {
           // Check if we have a valid session
           const user = await clerk.user;
-          console.log('Current user data:', { 
-            id: user?.id, 
+          console.log('Current user data:', {
+            id: user?.id,
             email: user?.emailAddresses[0]?.emailAddress,
             role: user?.publicMetadata?.role || user?.unsafeMetadata?.role,
             hasVerifiedEmail: user?.emailAddresses.some(email => email.verification?.status === 'verified')
           });
-          
+
           if (!user) {
             console.log('No valid user data, signing out');
             await signOut();
@@ -138,7 +140,7 @@ export default function LoginPage() {
             // Import the syncUser function dynamically to avoid bundling server code
             const { syncUser } = await import('@/lib/clerk/actions');
             const syncResult = await syncUser();
-            
+
             if (syncResult) {
               console.log('User synced successfully with database, role:', syncResult.role);
             } else {
@@ -183,17 +185,17 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-    
+
     setIsSubmitting(true);
     setError(null);
 
     try {
       console.log('Starting login process');
-      
+
       // Handle regular sign in
       const currentEmail = email.trim();
       const currentPassword = password;
-      
+
       if (!currentEmail || !currentPassword) {
         setError('Email and password are required');
         setIsSubmitting(false);
@@ -203,7 +205,7 @@ export default function LoginPage() {
       console.log('Attempting sign in with Clerk');
       const result = await handleSignIn(currentEmail, currentPassword);
       console.log('Sign in result:', result);
-      
+
       if (result.success && result.redirectTo) {
         console.log('Sign in successful, redirecting to:', result.redirectTo);
         router.push(result.redirectTo as Route);
@@ -282,13 +284,13 @@ export default function LoginPage() {
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Sign In
         </Typography>
-        
+
         {error && (
           <Alert severity={needsMFA ? "info" : "error"} sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
-        
+
         {showVerificationSuccess && (
           <Alert severity="success" sx={{ mb: 2 }}>
             Your email has been verified successfully! Please sign in with your credentials.
@@ -354,7 +356,7 @@ export default function LoginPage() {
                 Verification Required
               </Typography>
               <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-                {mfaStrategy === 'totp' 
+                {mfaStrategy === 'totp'
                   ? 'Please enter the code from your authenticator app.'
                   : 'Please enter the verification code sent to your email.'}
               </Typography>
@@ -387,7 +389,7 @@ export default function LoginPage() {
           </Button>
 
           <div id="clerk-captcha" style={{ marginTop: '10px' }}></div>
-          
+
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
               Don't have an account?{' '}

@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
@@ -20,23 +22,23 @@ export default function Home() {
     // Debug logging
     console.log('Home page - Auth status:', isLoaded ? 'loaded' : 'loading');
     console.log('Home page - User data:', user);
-    
+
     // Only redirect if we're explicitly navigating to the dashboard
     if (isLoaded && isUserLoaded && isSignedIn && user && !isRedirecting) {
       const path = window.location.pathname;
       if (path === '/dashboard' || path === '/') {
         setIsRedirecting(true);
-        
+
         const handleRedirect = async () => {
           try {
             // Get the user's role from metadata
             const userRole = user.unsafeMetadata?.role as Role;
             console.log('User role from metadata:', userRole);
-            
+
             if (userRole) {
               const dashboardUrl = DEFAULT_ROUTES[userRole];
               console.log(`User authenticated with role ${userRole}, redirecting to ${dashboardUrl}`);
-              
+
               // Add a small delay to ensure routing works properly
               setTimeout(() => {
                 router.push(dashboardUrl as Route);
