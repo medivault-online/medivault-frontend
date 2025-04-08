@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 
@@ -5,7 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const session = await auth();
     const token = await session.getToken();
-    
+
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -27,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
     const url = `${backendUrl}/api/providers/appointments?${queryParams.toString()}`;
-    
+
     try {
       const response = await fetch(url, {
         method: 'GET',

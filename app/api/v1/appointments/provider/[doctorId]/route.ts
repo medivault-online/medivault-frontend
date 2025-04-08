@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 
@@ -25,7 +27,7 @@ export async function GET(
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api';
     const url = `${backendUrl}/providers/appointments?providerId=${params.providerId}&${queryParams.toString()}`;
-    
+
     try {
       const response = await fetch(url, {
         method: 'GET',

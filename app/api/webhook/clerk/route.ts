@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
@@ -17,7 +19,7 @@ export async function POST(req: NextRequest) {
     // Rate limiting check
     const now = Date.now();
     const rateLimit = rateLimitMap.get(ip);
-    
+
     if (rateLimit) {
       if (now - rateLimit.timestamp > RATE_LIMIT_WINDOW) {
         rateLimitMap.set(ip, { count: 1, timestamp: now });
@@ -40,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Get the body
     let payload;
     let evt: WebhookEvent;
-    
+
     try {
       payload = await req.json();
       evt = payload as WebhookEvent;
@@ -65,9 +67,9 @@ export async function POST(req: NextRequest) {
         const data = evt.data as any; // Use any type for flexibility with webhook data
         const userId = data.user_id;
         const status = data.status;
-        
+
         console.log(`Clerk: ${eventType} event received`, { id: data.id, userId, status });
-        
+
         if (!userId) {
           return new Response(JSON.stringify({ error: 'Missing user ID' }), {
             status: 400,
@@ -76,12 +78,12 @@ export async function POST(req: NextRequest) {
             },
           });
         }
-        
+
         // Get user from database
         const dbUser = await prisma.user.findFirst({
           where: { authId: userId }
         });
-        
+
         if (!dbUser) {
           console.error(`User not found in database for Clerk ID: ${userId}`);
           return new Response(JSON.stringify({ error: 'User not found' }), {
@@ -91,14 +93,14 @@ export async function POST(req: NextRequest) {
             },
           });
         }
-        
+
         // MFA status is now handled by Clerk - no need to store it in our database
-        const isEnabled = (eventType as string).startsWith('factor.') && 
-                         ((eventType as string) === 'factor.created' || 
-                         ((eventType as string) === 'factor.verified' && status === 'verified'));
-        
+        const isEnabled = (eventType as string).startsWith('factor.') &&
+          ((eventType as string) === 'factor.created' ||
+            ((eventType as string) === 'factor.verified' && status === 'verified'));
+
         console.log(`MFA status changed for user ${dbUser.id}: ${isEnabled ? 'enabled' : 'disabled'}`);
-        
+
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: {
@@ -106,13 +108,13 @@ export async function POST(req: NextRequest) {
           },
         });
       }
-      
+
       if (eventType === 'user.created') {
         const { id, email_addresses, first_name, last_name, image_url, unsafe_metadata } = evt.data;
-        
+
         console.log('Clerk: user.created event received', { id, email: email_addresses?.[0]?.email_address });
         console.log('Clerk: user metadata', unsafe_metadata);
-        
+
         // Validate required fields
         if (!id || !email_addresses?.[0]?.email_address) {
           console.error('Clerk: Missing required fields');
@@ -126,13 +128,13 @@ export async function POST(req: NextRequest) {
 
         // Get email address
         const email = email_addresses[0].email_address;
-        const emailVerified = email_addresses[0]?.verification?.status === 'verified' ? 
+        const emailVerified = email_addresses[0]?.verification?.status === 'verified' ?
           new Date() : null;
 
         // Get role from unsafe_metadata or default to PATIENT
         const role = (unsafe_metadata?.role as Role) || Role.PATIENT;
         console.log('Clerk: Using role:', role);
-        
+
         // Validate role - only allow PATIENT or PROVIDER
         if (role !== Role.PATIENT && role !== Role.PROVIDER) {
           console.error(`Invalid role attempted: ${role}`);
@@ -146,7 +148,7 @@ export async function POST(req: NextRequest) {
 
         // Format name
         const name = `${first_name || ''} ${last_name || ''}`.trim();
-        
+
         // Generate a unique username
         const baseUsername = `${first_name || ''}${last_name || ''}`.toLowerCase().replace(/\s+/g, '') || `user_${Date.now().toString().slice(-6)}`;
         const timestamp = Date.now().toString().slice(-6);
@@ -167,7 +169,7 @@ export async function POST(req: NextRequest) {
 
               if (existingUser) {
                 console.log('User already exists:', existingUser);
-                
+
                 // Update existing user with the latest information
                 user = await prisma.user.update({
                   where: { id: existingUser.id },
@@ -180,7 +182,7 @@ export async function POST(req: NextRequest) {
                     emailVerified: emailVerified || existingUser.emailVerified,
                   }
                 });
-                
+
                 console.log('Updated existing user:', user);
               } else {
                 // Create user in database
@@ -201,7 +203,7 @@ export async function POST(req: NextRequest) {
 
                 console.log('Created user in database:', user);
               }
-              
+
               // Update Clerk metadata with the role from database
               console.log('Updating Clerk metadata with role:', role);
               try {
@@ -212,7 +214,7 @@ export async function POST(req: NextRequest) {
                     'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({
-                    public_metadata: { 
+                    public_metadata: {
                       role: user!.role,
                       dbSynced: true,
                       dbUserId: user!.id
@@ -224,16 +226,16 @@ export async function POST(req: NextRequest) {
                 console.error('Error updating Clerk metadata:', metadataError);
                 // Still return success since user was created in the database
               }
-              
+
               break; // Success, exit the retry loop
             } catch (dbError) {
               retries++;
               console.error(`Database operation failed (attempt ${retries}/${maxRetries}):`, dbError);
-              
+
               if (retries >= maxRetries) {
                 throw dbError; // Rethrow after max retries
               }
-              
+
               // Wait before retrying (exponential backoff)
               await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries - 1)));
             }
@@ -247,7 +249,7 @@ export async function POST(req: NextRequest) {
           });
         } catch (error) {
           console.error('Error in user.created event:', error);
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             error: 'Failed to create or update user',
             details: error instanceof Error ? error.message : String(error)
           }), {
@@ -261,10 +263,10 @@ export async function POST(req: NextRequest) {
 
       if (eventType === 'user.updated') {
         const { id, email_addresses, first_name, last_name, image_url, public_metadata, unsafe_metadata } = evt.data;
-        
+
         console.log('Clerk: user.updated event received', { id });
         console.log('Clerk: user metadata', { public_metadata, unsafe_metadata });
-        
+
         // Validate required fields
         if (!id) {
           return new Response(JSON.stringify({ error: 'Missing user ID' }), {
