@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { ZodError, z } from 'zod';
@@ -72,8 +74,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (user.image) {
       try {
         imageUrl = await getPresignedDownloadUrl(
-          process.env.S3_BUCKET_NAME || 'medical-images', 
-          user.image, 
+          process.env.S3_BUCKET_NAME || 'medical-images',
+          user.image,
           60 * 15 // 15 minutes
         );
       } catch (error) {
@@ -85,7 +87,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const responseUser = {
       ...user,
       image: imageUrl,
-      connectedAccounts: user.accounts?.map((account: {provider: string}) => account.provider) || [],
+      connectedAccounts: user.accounts?.map((account: { provider: string }) => account.provider) || [],
       // Remove the accounts array from the response
       accounts: undefined
     };
@@ -119,7 +121,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     // Check if user exists
     const userExists = await prisma.user.findUnique({
       where: { authId: userId },
-      select: { 
+      select: {
         id: true,
         profile: true
       }
@@ -170,10 +172,10 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
           where: { authId: userId },
           data: userUpdate,
           select: {
-            id: true, 
-            name: true, 
-            email: true, 
-            image: true, 
+            id: true,
+            name: true,
+            email: true,
+            image: true,
             role: true,
             createdAt: true,
             updatedAt: true
@@ -184,10 +186,10 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
         user = await tx.user.findUnique({
           where: { authId: userId },
           select: {
-            id: true, 
-            name: true, 
-            email: true, 
-            image: true, 
+            id: true,
+            name: true,
+            email: true,
+            image: true,
             role: true,
             createdAt: true,
             updatedAt: true

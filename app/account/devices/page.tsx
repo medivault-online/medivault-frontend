@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
@@ -53,7 +55,7 @@ export default function DevicesPage() {
       <Typography variant="h4" component="h1" gutterBottom>
         Trusted Devices
       </Typography>
-      
+
       <Typography variant="body1" color="text.secondary" paragraph>
         Manage the devices that have access to your account
       </Typography>

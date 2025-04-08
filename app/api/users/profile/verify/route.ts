@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { z } from 'zod';
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // In a real implementation, we'd verify against a verification code table
     // Since we don't have a specific verification code model, we simulate verification here
-    
+
     // For email verification, update the emailVerified field
     if (type === 'email') {
       await prisma.user.update({
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const userProfile = await prisma.profile.findUnique({
         where: { userId: user.id }
       });
-      
+
       if (!userProfile) {
         // Create profile if it doesn't exist
         await prisma.profile.create({
@@ -85,9 +87,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: `Your ${type} has been verified successfully` 
+      message: `Your ${type} has been verified successfully`
     });
   } catch (error) {
     console.error(`Verification error:`, error);

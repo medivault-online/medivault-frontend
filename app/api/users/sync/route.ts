@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
@@ -30,13 +32,13 @@ export async function POST(req: Request) {
 
     // Get user's role from metadata or database
     let role = user.unsafeMetadata?.role || user.publicMetadata?.role;
-    
+
     // If no role in metadata, try to get it from the database
     if (!role) {
       const dbUser = await prisma.user.findUnique({
         where: { authId: userId }
       });
-      
+
       if (dbUser?.role) {
         role = dbUser.role;
       } else {

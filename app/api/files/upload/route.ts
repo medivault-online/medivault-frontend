@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { writeFile } from 'fs/promises';
@@ -27,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Generate a unique filename if no key is provided
     const key = providedKey || `uploads/${userId}/${uuidv4()}_${file.name}`;
-    
+
     // Get file as buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -36,9 +38,9 @@ export async function POST(request: NextRequest) {
     // For demo purposes, we'll save to the local filesystem
     const uploadsDir = join(process.cwd(), 'public', 'uploads');
     const filePath = join(uploadsDir, key.replace(/\//g, '_'));
-    
+
     await writeFile(filePath, buffer);
-    
+
     // Store file metadata in database
     await prisma.fileUpload.create({
       data: {

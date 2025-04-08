@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
@@ -80,7 +82,7 @@ export async function GET(
     // Check if user has permission to access the image
     const userOwnsImage = image.userId === userId;
     const imageIsSharedWithUser = image.shares.length > 0;
-    
+
     if (!userOwnsImage && !imageIsSharedWithUser) {
       return NextResponse.json(
         { error: 'Forbidden', message: 'No permission to access this image' },
@@ -128,7 +130,7 @@ export async function GET(
           expiresIn: 15 * 60 // 15 minutes
         });
 
-        return NextResponse.json({ 
+        return NextResponse.json({
           status: 'success',
           data: {
             url: presignedUrl,
@@ -139,9 +141,9 @@ export async function GET(
       } catch (s3Error) {
         console.error('Error generating presigned URL:', s3Error);
         return NextResponse.json(
-          { 
-            error: 'S3Error', 
-            message: 'Failed to generate access URL for DICOM file' 
+          {
+            error: 'S3Error',
+            message: 'Failed to generate access URL for DICOM file'
           },
           { status: 500 }
         );
@@ -150,9 +152,9 @@ export async function GET(
       // For local storage, we would read the file and return it
       // This is a placeholder for now
       return NextResponse.json(
-        { 
-          error: 'NotImplemented', 
-          message: 'Local DICOM file serving not implemented' 
+        {
+          error: 'NotImplemented',
+          message: 'Local DICOM file serving not implemented'
         },
         { status: 501 }
       );
@@ -160,9 +162,9 @@ export async function GET(
   } catch (error) {
     console.error('Error serving DICOM file:', error);
     return NextResponse.json(
-      { 
-        error: 'InternalServerError', 
-        message: 'Failed to serve DICOM file' 
+      {
+        error: 'InternalServerError',
+        message: 'Failed to serve DICOM file'
       },
       { status: 500 }
     );

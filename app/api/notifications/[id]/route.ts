@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 
@@ -8,13 +10,13 @@ export async function PATCH(
 ) {
   try {
     const notificationId = params.id;
-    
+
     // Get auth from Clerk
     const session = await auth();
-    
+
     // Get token from Clerk
     const token = await session.getToken();
-    
+
     if (!token) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -33,7 +35,7 @@ export async function PATCH(
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       return NextResponse.json(
         { error: data.error || 'An error occurred while marking notification as read' },
@@ -59,10 +61,10 @@ export async function DELETE(
   try {
     // Get auth from Clerk
     const session = await auth();
-    
+
     // Get token from Clerk
     const token = await session.getToken();
-    
+
     // If no token, return unauthorized
     if (!token) {
       return NextResponse.json(
@@ -72,7 +74,7 @@ export async function DELETE(
     }
 
     const notificationId = params.id;
-    
+
     // Forward request to backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api';
     const response = await fetch(`${backendUrl}/notifications/${notificationId}`, {
@@ -87,7 +89,7 @@ export async function DELETE(
     if (!response.ok) {
       console.error(`Failed to delete notification ${notificationId}: ${response.status}`);
       return NextResponse.json(
-        { 
+        {
           status: 'error',
           message: 'Failed to delete notification',
           data: null
@@ -103,14 +105,14 @@ export async function DELETE(
     } catch (e) {
       data = { status: 'success' };
     }
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error deleting notification:', error);
     return NextResponse.json(
-      { 
-        status: 'error', 
-        message: 'Server error', 
+      {
+        status: 'error',
+        message: 'Server error',
         data: null
       },
       { status: 200 } // Return 200 to prevent UI errors

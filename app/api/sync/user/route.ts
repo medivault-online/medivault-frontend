@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
@@ -6,7 +8,7 @@ import { Role } from '@prisma/client';
 export async function POST(req: Request) {
   try {
     console.log('User sync endpoint called');
-    
+
     // Get the authenticated user from Clerk
     const { userId } = await auth();
     if (!userId) {
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-    
+
     console.log('Auth userId:', userId);
 
     // Get user data from Clerk
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`
       }
     });
-    
+
     if (!clerkResponse.ok) {
       console.error('Failed to fetch from Clerk API:', clerkResponse.status);
       return NextResponse.json(
@@ -33,7 +35,7 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
-    
+
     const user = await clerkResponse.json();
 
     if (!user) {
@@ -43,15 +45,15 @@ export async function POST(req: Request) {
         { status: 404 }
       );
     }
-    
-    console.log('Clerk user metadata:', { 
-      publicMetadata: user.public_metadata, 
+
+    console.log('Clerk user metadata:', {
+      publicMetadata: user.public_metadata,
       unsafeMetadata: user.unsafe_metadata
     });
 
     // Get the email from Clerk
     const userEmail = user.email_addresses?.[0]?.email_address;
-    
+
     if (!userEmail) {
       console.log('No email found for user');
       return NextResponse.json(
@@ -61,39 +63,39 @@ export async function POST(req: Request) {
     }
 
     // Get user's role from metadata or database - check both camelCase and snake_case
-    let role = user.public_metadata?.role || user.unsafe_metadata?.role || 
-               user.publicMetadata?.role || user.unsafeMetadata?.role;
-    
+    let role = user.public_metadata?.role || user.unsafe_metadata?.role ||
+      user.publicMetadata?.role || user.unsafeMetadata?.role;
+
     console.log('Initial role detection:', role);
-    
+
     // Check if user exists by authId or email
     const existingUserByAuthId = await prisma.user.findUnique({
       where: { authId: userId }
     });
-    
+
     const existingUserByEmail = await prisma.user.findUnique({
       where: { email: userEmail }
     });
-    
+
     console.log('Existing user by authId:', existingUserByAuthId?.id);
     console.log('Existing user by email:', existingUserByEmail?.id);
-    
+
     // Handle existing user checks
     let existingUser = existingUserByAuthId;
-    
+
     // If we found a user by email but not by authId, or found different users
     if (existingUserByEmail && (!existingUserByAuthId || existingUserByEmail.id !== existingUserByAuthId.id)) {
       console.log('Found existing user with same email but different authId');
-      
+
       // Update the existing user's authId to link it with the current Clerk user
       await prisma.user.update({
         where: { id: existingUserByEmail.id },
         data: { authId: userId }
       });
-      
+
       existingUser = existingUserByEmail;
     }
-    
+
     // If no role in metadata, use existing user's role or default to PATIENT
     if (!role) {
       if (existingUser?.role) {
@@ -104,7 +106,7 @@ export async function POST(req: Request) {
         role = 'PATIENT';
       }
     }
-    
+
     console.log('Final role used:', role);
 
     // Prepare user data for update or create
@@ -118,9 +120,9 @@ export async function POST(req: Request) {
       lastLoginAt: new Date(),
       lastActiveAt: new Date()
     };
-    
+
     let dbUser;
-    
+
     if (existingUser) {
       // Update existing user
       console.log('Updating existing user:', existingUser.id);
@@ -140,7 +142,7 @@ export async function POST(req: Request) {
         }
       });
     }
-    
+
     console.log('User operation successful:', dbUser.id);
 
     // Always update Clerk metadata to ensure consistency

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { z } from 'zod';
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Generate verification code
     const verificationCode = generateVerificationCode();
-    
+
     // In a real implementation, we would store this code in a database
     // and create an actual verification workflow.
     // For this example, we'll use a simpler approach.
@@ -85,7 +87,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // For this example, we'll simulate success and return the code in the response
     // (which is only okay for development purposes)
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: `Verification code sent to your ${type}`,
       // IMPORTANT: In production, NEVER return the actual code in the response!

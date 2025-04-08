@@ -1,10 +1,12 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getErrorResponse } from '@/lib/api/error-handler';
 import prisma from '@/lib/db';
-import { 
-  getPresignedUploadUrl as getUploadUrl, 
-  generateUniqueFilename 
+import {
+  getPresignedUploadUrl as getUploadUrl,
+  generateUniqueFilename
 } from '@/lib/api/s3-api';
 
 /**
@@ -38,7 +40,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // Generate a unique filename for the profile image
     const filename = generateUniqueFilename('profile.jpg');
     const key = `users/${user.id}/profile/${filename}`;
-    
+
     // Get presigned URL from the backend
     const presignedUrlData = await getUploadUrl(
       process.env.NEXT_PUBLIC_USER_CONTENT_BUCKET || 'user-content',
@@ -90,7 +92,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // Parse the request body
     const body = await req.json();
     const { fileKey } = body;
-    
+
     if (!fileKey) {
       return NextResponse.json(
         { error: 'Bad Request', message: 'File key is required' },

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
@@ -11,14 +13,14 @@ export async function GET(
     // Verify authentication
     const authResult = await auth();
     const authenticatedUserId = authResult?.userId;
-    
+
     if (!authenticatedUserId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
-    
+
     // Only allow users to check their own sync status
     const targetUserId = params.userId;
     if (targetUserId !== authenticatedUserId) {
@@ -27,33 +29,33 @@ export async function GET(
         { status: 403 }
       );
     }
-    
+
     console.log(`Checking if user ${targetUserId} exists in database`);
-    
+
     // Check if user exists in database
     const user = await prisma.user.findUnique({
       where: { authId: targetUserId },
       select: { id: true }
     });
-    
+
     if (!user) {
       console.log(`User ${targetUserId} not found in database`);
-      
+
       // Mark this in localStorage to help with detection on client side
       return NextResponse.json({
         exists: false,
         message: 'User not found in database'
       });
     }
-    
+
     console.log(`User ${targetUserId} found in database with ID ${user.id}`);
-    
+
     // User exists, now check if the Clerk metadata matches
     try {
       // Update user's Clerk metadata to reflect sync status
       const clerk = await clerkClient();
       await clerk.users.updateUser(targetUserId, {
-        publicMetadata: { 
+        publicMetadata: {
           dbSynced: true,
           dbUserId: user.id,
           lastSyncCheck: new Date().toISOString()
@@ -63,7 +65,7 @@ export async function GET(
       console.error('Error updating Clerk metadata:', clerkError);
       // Continue anyway since the user exists in the database
     }
-    
+
     return NextResponse.json({
       exists: true,
       userId: user.id

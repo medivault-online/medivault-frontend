@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { z } from 'zod';
@@ -30,7 +32,7 @@ export async function PATCH(
   try {
     // Get the authenticated user
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -43,18 +45,18 @@ export async function PATCH(
       where: { authId: userId },
       select: { id: true, role: true }
     });
-    
+
     if (!user || user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Only administrators can review verification requests' },
         { status: 403 }
       );
     }
-    
+
     // Parse and validate the request body
     const body = await req.json();
     const validatedData = VerificationReviewSchema.parse(body);
-    
+
     // Check if the verification exists
     const verification = await prisma.providerVerification.findUnique({
       where: { id: params.id },
@@ -68,14 +70,14 @@ export async function PATCH(
         }
       }
     });
-    
+
     if (!verification) {
       return NextResponse.json(
         { error: 'Verification not found' },
         { status: 404 }
       );
     }
-    
+
     // Check if the verification is pending
     if (verification.verificationStatus !== VerificationStatus.PENDING) {
       return NextResponse.json(
@@ -83,7 +85,7 @@ export async function PATCH(
         { status: 400 }
       );
     }
-    
+
     // Update the verification status
     const updatedVerification = await prisma.providerVerification.update({
       where: { id: params.id },
@@ -96,14 +98,14 @@ export async function PATCH(
         notes: validatedData.notes,
       }
     });
-    
+
     // If approved, update the provider's specialty if available
     if (validatedData.status === 'APPROVED' && verification.specialtyName) {
       // Convert the specialty string to enum value if possible, otherwise use null
       // This ensures type safety with the Prisma schema
       const specialtyValue = Object.values(PrismaProviderSpecialty).includes(
         verification.specialtyName as any
-      ) 
+      )
         ? (verification.specialtyName as PrismaProviderSpecialty)
         : null;
 
@@ -114,19 +116,19 @@ export async function PATCH(
         }
       });
     }
-    
+
     // Create a notification for the provider
-    const notificationType = validatedData.status === 'APPROVED' 
+    const notificationType = validatedData.status === 'APPROVED'
       ? 'VERIFICATION_APPROVED'
       : 'VERIFICATION_REJECTED';
-      
+
     await prisma.notification.create({
       data: {
         userId: verification.providerId,
-        type: notificationType === 'VERIFICATION_APPROVED' 
+        type: notificationType === 'VERIFICATION_APPROVED'
           ? PrismaNotificationType.SYSTEM_UPDATE
           : PrismaNotificationType.SECURITY_ALERT,
-        content: validatedData.status === 'APPROVED' 
+        content: validatedData.status === 'APPROVED'
           ? 'Your provider verification has been approved.'
           : `Your provider verification has been rejected. Reason: ${validatedData.rejectionReason || 'No reason provided'}`,
         read: false,
@@ -136,7 +138,7 @@ export async function PATCH(
         }
       }
     });
-    
+
     // Create an audit log entry
     await prisma.auditLog.create({
       data: {
@@ -153,7 +155,7 @@ export async function PATCH(
         }
       }
     });
-    
+
     return NextResponse.json({
       verification: updatedVerification,
       message: `Verification ${validatedData.status.toLowerCase()}`

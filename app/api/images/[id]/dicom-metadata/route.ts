@@ -1,8 +1,10 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { DicomMetadata, ImageType } from '@/lib/api/types';
-import { logAudit } from '@/lib/audit-logger'; 
+import { logAudit } from '@/lib/audit-logger';
 
 /**
  * GET /api/images/[id]/dicom-metadata
@@ -69,7 +71,7 @@ export async function GET(
     // Check if user has permission to access the image
     const userOwnsImage = image.userId === userId;
     const imageIsSharedWithUser = image.shares.length > 0;
-    
+
     if (!userOwnsImage && !imageIsSharedWithUser) {
       return NextResponse.json(
         { error: 'Forbidden', message: 'No permission to access this image' },
@@ -90,7 +92,7 @@ export async function GET(
     // In a real implementation, you would parse the DICOM file
     // and extract the metadata
     let dicomMetadata: DicomMetadata;
-    
+
     if (image.metadata && typeof image.metadata === 'object') {
       // If metadata is already stored with the image, use it
       dicomMetadata = (image.metadata as any).dicom as DicomMetadata || {};
@@ -129,16 +131,16 @@ export async function GET(
     });
 
     // Return the DICOM metadata
-    return NextResponse.json({ 
+    return NextResponse.json({
       status: 'success',
       data: dicomMetadata
     });
   } catch (error) {
     console.error('Error retrieving DICOM metadata:', error);
     return NextResponse.json(
-      { 
-        error: 'InternalServerError', 
-        message: 'Failed to retrieve DICOM metadata' 
+      {
+        error: 'InternalServerError',
+        message: 'Failed to retrieve DICOM metadata'
       },
       { status: 500 }
     );
