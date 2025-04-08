@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useState } from 'react';
 import {
   Container,
@@ -17,7 +19,7 @@ import {
   MedicalInformation as MedicalIcon,
 } from '@mui/icons-material';
 import { DataTable } from '@/components/DataTable';
-import { withProtectedRoute } from '@/components/ProtectedRoute'; 
+import { withProtectedRoute } from '@/components/ProtectedRoute';
 import { useToast } from '@/contexts/ToastContext';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { api } from '@/lib/api/api';
@@ -88,15 +90,15 @@ function PatientsPage() {
   };
 
   const columns = [
-    { 
-      id: 'name' as const, 
-      label: 'Name', 
-      minWidth: 170 
+    {
+      id: 'name' as const,
+      label: 'Name',
+      minWidth: 170
     },
-    { 
-      id: 'email' as const, 
-      label: 'Email', 
-      minWidth: 170 
+    {
+      id: 'email' as const,
+      label: 'Email',
+      minWidth: 170
     },
     {
       id: 'dateOfBirth' as const,
