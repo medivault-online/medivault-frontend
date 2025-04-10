@@ -79,6 +79,11 @@ enum ShareType {
   EMAIL
 }
 
+generator client {
+  provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
+}
+
 // Add a new enum for provider specialties
 enum ProviderSpecialty {
   GENERAL
