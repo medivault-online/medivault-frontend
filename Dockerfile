@@ -24,3 +24,8 @@ EXPOSE 3000
 
 # Run app in production mode
 CMD ["npm", "start"]
+
+# Generate Prisma client and build
+RUN npm install prisma @prisma/client && \
+    npx prisma generate && \
+    npm run build
